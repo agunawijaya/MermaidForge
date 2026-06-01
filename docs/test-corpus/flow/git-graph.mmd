@@ -1,0 +1,17 @@
+---
+title: Feature branch workflow
+---
+gitGraph
+    commit id: "init"
+    commit id: "setup"
+    branch feature
+    checkout feature
+    commit id: "feature-a"
+    commit id: "feature-b"
+    checkout main
+    commit id: "hotfix"
+    checkout feature
+    merge main
+    commit id: "feature-c"
+    checkout main
+    merge feature tag: "v1.0"

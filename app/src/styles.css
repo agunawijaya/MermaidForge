@@ -1,0 +1,587 @@
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;          /* keep status bar pinned to viewport */
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 14px;
+  color: #1a1a1a;
+  background: #fafafa;
+}
+
+/* ============================================================
+   App shell — grid layout
+     row 1: app toolbar (full width)
+     row 2: sidebar | restore | workspace
+     row 3: status bar (full width)
+   ============================================================ */
+
+.app-shell {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  grid-template-columns: auto auto 1fr;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+.app-toolbar { grid-row: 1; grid-column: 1 / -1; }
+.sidebar     { grid-row: 2; grid-column: 1; }
+#sidebar-restore { grid-row: 2; grid-column: 2; }
+.workspace   { grid-row: 2; grid-column: 3; min-width: 0; }
+.status-bar  { grid-row: 3; grid-column: 1 / -1; }
+
+.workspace {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ============================================================
+   File operations toolbar (T4.6.2.2)
+   ============================================================ */
+
+.app-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 36px;
+  padding: 0 8px;
+  background: #f8f8f8;
+  border-bottom: 1px solid #d4d4d4;
+}
+
+.atb-btn {
+  width: 32px;
+  height: 28px;
+  padding: 4px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #333;
+}
+.atb-btn:hover { background: #e7e7e7; border-color: #c0c0c0; }
+.atb-btn:active { background: #d4d4d4; }
+.atb-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.atb-btn:disabled:hover { background: transparent; border-color: transparent; }
+
+.atb-btn svg { width: 18px; height: 18px; stroke-width: 1.75; pointer-events: none; }
+
+.atb-sep {
+  width: 1px;
+  height: 20px;
+  background: #d0d0d0;
+  margin: 0 4px;
+}
+
+.atb-with-caret { width: 44px; gap: 2px; }
+.atb-caret {
+  font-size: 10px;
+  color: #666;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.atb-dropdown { position: relative; display: inline-block; }
+.atb-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 220px;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  padding: 4px 0;
+}
+.atb-menu-item {
+  display: block;
+  width: 100%;
+  padding: 6px 12px;
+  background: transparent;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  color: #18181b;
+}
+.atb-menu-item:hover { background: #e7e7e7; }
+.atb-menu-item:focus { outline: none; background: #dbeafe; }
+.atb-menu-item:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  color: #888;
+}
+.atb-menu-item:disabled:hover { background: transparent; }
+
+/* ============================================================
+   Alt-key mnemonic overlay menus (T4.6.2.0 workaround)
+   Drop down from below the native menu bar / app-toolbar.
+   ============================================================ */
+
+.alt-menu {
+  position: fixed;
+  top: 36px;
+  min-width: 240px;
+  background: #fff;
+  border: 1px solid #999;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  padding: 4px 0;
+  z-index: 1500;
+  font-size: 13px;
+  color: #18181b;
+}
+#alt-menu-file { left: 4px; }
+#alt-menu-help { left: 72px; }
+.alt-menu[hidden] { display: none; }
+
+.alt-menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 6px 16px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+  color: inherit;
+  gap: 24px;
+}
+.alt-menu-item:hover { background: #e7e7e7; }
+.alt-menu-item:focus { outline: none; background: #cce0ff; }
+.alt-menu-item .ami-shortcut { color: #888; font-size: 12px; }
+.alt-menu-sep {
+  height: 1px;
+  background: #d4d4d4;
+  margin: 4px 0;
+}
+
+/* ============================================================
+   Sidebar
+   ============================================================ */
+
+.sidebar {
+  width: 220px;
+  flex: 0 0 220px;
+  background: #f4f4f5;
+  border-right: 1px solid #d4d4d8;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar.collapsed { display: none; }
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 36px;
+  flex: 0 0 36px;
+  padding: 0 8px 0 14px;
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #52525b;
+  border-bottom: 1px solid #d4d4d8;
+  background: #ececef;
+}
+
+.template-list {
+  flex: 1;
+  padding: 6px 0;
+}
+
+.category-heading {
+  padding: 10px 14px 4px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #71717a;
+}
+
+.template-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 6px 14px 6px 22px;
+  font: inherit;
+  font-size: 13px;
+  color: #18181b;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  border-radius: 0;
+}
+.template-item:hover { background: #e4e4e7; }
+.template-item.selected { background: #2563eb; color: #fff; }
+.template-item.selected:hover { background: #1d4ed8; }
+
+/* ============================================================
+   Collapse / restore controls
+   ============================================================ */
+
+/* Collapse and restore arrow buttons share core look; alignment trick
+   is `line-height: 36px` on the restore strip so the glyph renders in
+   a 36 px-tall line at the TOP of the (full-height) strip, visually
+   matching the collapse button centered in the 36 px header next door.
+   No padding/margin asymmetry between the two. */
+.collapse-btn,
+.restore-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #555;
+  font-size: 13px;
+}
+.collapse-btn:hover,
+.restore-btn:hover { background: #e0e0e0; color: #222; }
+
+/* Collapse button inside the 36 px-tall header: centered. */
+.pane-header .collapse-btn,
+.sidebar-header .collapse-btn {
+  align-self: center;
+  margin: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Restore strip: full-height column. Arrow rendered in a 36 px-tall
+   line at the TOP, so it sits at the same y as the centered collapse
+   arrow in the adjacent header. */
+.restore-btn {
+  height: 100%;
+  width: 20px;
+  flex: 0 0 20px;
+  padding: 0;
+  background: #f0f0f0;
+  border-right: 1px solid #d4d4d4;
+  line-height: 36px;
+  text-align: center;
+  display: block;
+  vertical-align: top;
+}
+.restore-btn[hidden] { display: none; }
+.restore-btn.vertical { align-self: stretch; }
+
+/* ============================================================
+   Panes container — Code | code-restore | Diagram
+   ============================================================ */
+
+.panes {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.code-pane {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 var(--code-pane-width, 50%);
+  min-width: 200px;
+  border-right: 1px solid #d0d0d0;
+  background: #fff;
+}
+.code-pane.collapsed { display: none; }
+
+.diagram-pane {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-width: 200px;
+  background: #fff;
+}
+
+/* Drag-to-resize splitter between Code and Diagram panes (T4.8 A.3).
+   No persistence — resets to default flex-basis each launch. */
+.pane-splitter {
+  width: 5px;
+  flex: 0 0 5px;
+  background: #d4d4d4;
+  cursor: col-resize;
+  transition: background-color 0.15s;
+}
+.pane-splitter:hover,
+.pane-splitter.dragging { background: #4a90e2; }
+
+/* When code pane is collapsed, hide the splitter too (the restore strip
+   takes its place). */
+.code-pane.collapsed ~ .pane-splitter,
+.code-pane.collapsed + .pane-splitter { display: none; }
+
+.pane-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 8px 0 14px;
+  height: 36px;
+  flex: 0 0 36px;
+  border-bottom: 1px solid #e4e4e7;
+  background: #ececef;
+}
+
+.pane-title {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #52525b;
+}
+
+/* ============================================================
+   Editor
+   ============================================================ */
+
+#editor {
+  flex: 1;
+  width: 100%;
+  border: none;
+  padding: 12px;
+  font-family: "JetBrains Mono", Menlo, Consolas, monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  resize: none;
+  outline: none;
+  background: #fff;
+  color: #1a1a1a;
+}
+
+/* ============================================================
+   Preview
+   ============================================================ */
+
+#preview {
+  flex: 1;
+  width: 100%;
+  overflow: auto;
+  padding: 16px;
+  background: #fff;
+}
+#preview svg { max-width: none; height: auto; transform-origin: 0 0; }
+#preview .err {
+  color: #b91c1c;
+  font-family: monospace;
+  white-space: pre-wrap;
+}
+
+#preview.panning { cursor: grab; }
+#preview.panning:active { cursor: grabbing; }
+
+/* ============================================================
+   Diagram toolbar
+   ============================================================ */
+
+.pane-header.diagram-toolbar {
+  height: 36px;
+  flex: 0 0 36px;
+  background: #ececef;
+  gap: 8px;
+  padding-right: 8px;
+}
+.toolbar-buttons {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.tb-btn {
+  min-width: 28px;
+  height: 26px;
+  padding: 0 8px;
+  background: #fff;
+  border: 1px solid #a0a0a8;
+  border-radius: 3px;
+  color: #18181b;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.tb-btn.tb-icon { font-size: 16px; font-weight: 600; padding: 0; }
+.tb-btn:hover { background: #f0f0f2; border-color: #707078; }
+.tb-btn:active { background: #d4d4d8; }
+.tb-btn.active { background: #dbeafe; border-color: #2563eb; color: #1d4ed8; }
+.tb-sep {
+  width: 1px;
+  height: 18px;
+  background: #a0a0a8;
+  margin: 0 4px;
+}
+.tb-select {
+  height: 26px;
+  background: #fff;
+  border: 1px solid #a0a0a8;
+  border-radius: 3px;
+  color: #18181b;
+  font-size: 12px;
+  padding: 0 4px;
+  cursor: pointer;
+}
+.tb-select:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  background: #ececef;
+}
+
+/* ============================================================
+   Status bar — 3-column grid aligned with main area columns
+     col 1: sidebar column (Ready message)
+     col 2: code column (Code zoom)
+     col 3: diagram column (Diagram zoom)
+   ============================================================ */
+
+.status-bar {
+  display: grid;
+  grid-template-columns: 220px 1fr 1fr;
+  align-items: stretch;
+  height: 28px;
+  background: #f0f0f0;
+  border-top: 1px solid #d4d4d4;
+  font-size: 12px;
+  color: #333;
+}
+.status-bar.sidebar-collapsed  { grid-template-columns: 0 1fr 1fr; }
+.status-bar.code-collapsed     { grid-template-columns: 220px 0 1fr; }
+.status-bar.sidebar-collapsed.code-collapsed { grid-template-columns: 0 0 1fr; }
+
+.status-cell {
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  border-right: 1px solid #d4d4d4;
+  overflow: hidden;
+}
+/* Pin each cell to its column so a hidden cell doesn't cause grid
+   auto-placement to slide later cells into earlier (0-width) tracks. */
+.status-cell-sidebar { grid-column: 1; }
+.status-cell-code    { grid-column: 2; }
+.status-cell-diagram { grid-column: 3; border-right: none; }
+
+.status-message {
+  color: #52525b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  user-select: none;
+  font-variant-numeric: tabular-nums;
+}
+.status-message:hover { background: rgba(0, 0, 0, 0.04); }
+.status-message[data-type="success"] { color: #1e7a1e; }
+.status-message[data-type="warning"] { color: #a05a00; }
+.status-message[data-type="error"]   { color: #b00020; font-weight: 500; }
+
+.status-bar.code-collapsed .status-cell-code { display: none; }
+.status-bar.sidebar-collapsed .status-cell-sidebar { display: none; }
+
+.zoom-label { color: #52525b; font-weight: 600; margin-right: 6px; }
+.zoom-btn {
+  width: 22px;
+  height: 20px;
+  background: #fff;
+  border: 1px solid #a0a0a8;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  color: #18181b;
+  padding: 0;
+  margin: 0 2px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.zoom-btn:hover { background: #f0f0f2; border-color: #707078; }
+.zoom-btn:active { background: #d4d4d8; }
+.zoom-readout {
+  min-width: 48px;
+  height: 20px;
+  text-align: center;
+  background: #fff;
+  border: 1px solid #a0a0a8;
+  border-radius: 3px;
+  cursor: pointer;
+  padding: 0 4px;
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+  font-weight: 500;
+  color: #18181b;
+}
+.zoom-readout:hover { background: #f0f0f2; border-color: #707078; }
+
+/* ============================================================
+   Zoom popover (T4.6.7)
+   ============================================================ */
+
+.zoom-popover {
+  position: fixed;
+  z-index: 1000;
+  background: #fff;
+  border: 1px solid #c4c4c8;
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 220px;
+  font-size: 12px;
+  color: #18181b;
+}
+.zoom-popover header {
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 11px;
+  color: #52525b;
+}
+.zoom-popover .row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.zoom-popover input[type="range"] {
+  flex: 1;
+  min-width: 0;
+}
+.zoom-popover input[type="number"] {
+  width: 64px;
+  padding: 2px 4px;
+  border: 1px solid #d4d4d8;
+  border-radius: 3px;
+  font: inherit;
+}
+.zoom-popover .reset-btn {
+  align-self: flex-start;
+  padding: 3px 8px;
+  background: #fff;
+  border: 1px solid #d4d4d8;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 11px;
+  color: #18181b;
+}
+.zoom-popover .reset-btn:hover { background: #f4f4f5; }

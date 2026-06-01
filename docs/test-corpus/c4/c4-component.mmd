@@ -1,0 +1,14 @@
+C4Component
+    title Component diagram: API Application
+    Container_Boundary(api, "API Application") {
+        Component(sign_in, "Sign In Controller", "Spring MVC Controller", "User sign-in")
+        Component(accounts, "Accounts Controller", "Spring MVC Controller", "Account info")
+        Component(security, "Security Component", "Spring Bean", "Authentication and authorization")
+        Component(mainframe_facade, "Mainframe Facade", "Spring Bean", "Façade for mainframe banking system")
+    }
+    ContainerDb(database, "Database", "PostgreSQL")
+    System_Ext(mainframe, "Mainframe Banking System")
+    Rel(sign_in, security, "Uses")
+    Rel(accounts, mainframe_facade, "Uses")
+    Rel(security, database, "Reads from", "JDBC")
+    Rel(mainframe_facade, mainframe, "Uses", "XML/HTTPS")

@@ -1,0 +1,15 @@
+flowchart TD
+    Start([Customer inquiry]) --> Type{Inquiry<br/>type?}
+    Type -->|Sales| Lead[Qualify lead]
+    Type -->|Support| Ticket[Create ticket]
+    Type -->|Billing| Account[Lookup account]
+    Lead --> Hot{Hot lead?}
+    Hot -->|Yes| Sales[Assign to sales]
+    Hot -->|No| Nurture[Add to nurture list]
+    Ticket --> Priority{Priority?}
+    Priority -->|High| Escalate[Escalate to L2]
+    Priority -->|Normal| Queue[Standard queue]
+    Account --> Resolve[Resolve issue]
+    style Type fill:#fef3c7,stroke:#d97706
+    style Hot fill:#fef3c7,stroke:#d97706
+    style Priority fill:#fef3c7,stroke:#d97706

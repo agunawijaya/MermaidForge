@@ -1,0 +1,20 @@
+C4Deployment
+    title Deployment diagram: Banking Production
+    Deployment_Node(plc, "Customer's PC", "Microsoft Windows or Apple macOS") {
+        Deployment_Node(browser, "Web Browser", "Chrome, Firefox, Safari, Edge") {
+            Container(spa, "Single-Page App", "JavaScript and Angular")
+        }
+    }
+    Deployment_Node(aws, "Big Bank AWS", "us-east-1") {
+        Deployment_Node(eks, "EKS Cluster", "Kubernetes 1.28") {
+            Container(api, "API Application", "Java and Spring Boot")
+            Container(web_app, "Web Application", "Java and Spring MVC")
+        }
+        Deployment_Node(rds, "Amazon RDS", "PostgreSQL 16") {
+            ContainerDb(database_primary, "Database (primary)", "PostgreSQL")
+            ContainerDb(database_replica, "Database (replica)", "PostgreSQL")
+        }
+    }
+    Rel(spa, api, "Calls", "JSON/HTTPS")
+    Rel(api, database_primary, "Reads/writes", "SQL/JDBC")
+    Rel(database_primary, database_replica, "Replicates", "async")

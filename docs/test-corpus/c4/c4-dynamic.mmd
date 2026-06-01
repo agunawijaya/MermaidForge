@@ -1,0 +1,14 @@
+C4Dynamic
+    title Dynamic diagram: User sign-in flow
+    Person(customer, "Banking Customer")
+    Container(spa, "Single-Page App", "JavaScript, Angular")
+    Container(api, "API Application", "Java, Spring Boot")
+    Component(security, "Security Component", "Spring Bean")
+    ContainerDb(database, "Database", "PostgreSQL")
+    Rel(customer, spa, "1. Submits credentials")
+    Rel(spa, api, "2. POST /sign-in")
+    Rel(api, security, "3. Validates")
+    Rel(security, database, "4. Looks up user")
+    Rel(database, security, "5. Returns user record")
+    Rel(security, api, "6. Token")
+    Rel(api, spa, "7. 200 OK + JWT")

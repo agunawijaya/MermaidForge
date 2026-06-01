@@ -1,0 +1,14 @@
+gantt
+    title Project Schedule
+    dateFormat YYYY-MM-DD
+    section Design
+    Requirements      :done, t1, 2026-01-01, 3d
+    Wireframes        :done, t2, after t1, 4d
+    Prototype         :active, t3, after t2, 5d
+    section Build
+    Backend setup     :t4, after t3, 4d
+    Frontend setup    :t5, after t4, 4d
+    Integration       :t6, after t5, 3d
+    section Launch
+    QA & polish       :t7, after t6, 3d
+    Release           :t8, after t7, 1d

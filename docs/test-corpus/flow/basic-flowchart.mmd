@@ -1,0 +1,8 @@
+flowchart TD
+    Start([Start]) --> Input[Read input]
+    Input --> Validate{Valid?}
+    Validate -->|Yes| Process[Process data]
+    Validate -->|No| Error[Show error]
+    Process --> Output[Write output]
+    Error --> End([End])
+    Output --> End

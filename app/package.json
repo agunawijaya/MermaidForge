@@ -1,0 +1,15 @@
+{
+  "name": "mermaidforge-spike",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "tauri": "tauri",
+    "build:sidecar": "powershell -ExecutionPolicy Bypass -File ../build-sidecar.ps1",
+    "build:app": "tauri build",
+    "build": "npm run build:sidecar && npm run build:app"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2"
+  }
+}

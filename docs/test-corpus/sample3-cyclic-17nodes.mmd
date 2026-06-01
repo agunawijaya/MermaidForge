@@ -1,0 +1,22 @@
+---
+config:
+  layout: elk
+---
+flowchart TB
+    Start([User opens app]) --> Auth{Authenticated?}
+    Auth -->|No| Login[Show login form]
+    Auth -->|Yes| Dashboard[Load dashboard]
+    Login --> Submit{Credentials valid?}
+    Submit -->|No| LoginError[Display error]
+    LoginError --> Login
+    Submit -->|Yes| Session[Create session]
+    Session --> Dashboard
+    Dashboard --> FetchData[Fetch user data]
+    FetchData --> Cache{Cache hit?}
+    Cache -->|Yes| Render[Render UI]
+    Cache -->|No| DB[(Query database)]
+    DB --> Store[Store in cache]
+    Store --> Render
+    Render --> Idle[Idle state]
+    Idle --> Logout([User logs out])
+    Logout --> Start

@@ -1,0 +1,13 @@
+---
+config:
+  layout: elk
+---
+flowchart TD
+    A[Start] --> B{Validate Input}
+    B -->|Valid| C[Process Data]
+    B -->|Invalid| D[Show Error]
+    C --> E[Save to DB]
+    D --> F[Log Error]
+    E --> G[Send Notification]
+    F --> G
+    G --> H[End]

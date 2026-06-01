@@ -1,0 +1,8 @@
+stateDiagram-v2
+    [*] --> Idle
+    Idle --> Loading: Submit
+    Loading --> Success: 200 OK
+    Loading --> Error: 4xx/5xx
+    Success --> Idle: Reset
+    Error --> Idle: Reset
+    Error --> Loading: Retry

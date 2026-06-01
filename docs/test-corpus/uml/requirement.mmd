@@ -1,0 +1,22 @@
+requirementDiagram
+    requirement user_login {
+        id: 1
+        text: "Users must authenticate before accessing protected resources"
+        risk: high
+        verifymethod: test
+    }
+    requirement password_strength {
+        id: 1.1
+        text: "Passwords must be at least 12 characters with mixed case"
+        risk: medium
+        verifymethod: inspection
+    }
+    element auth_module {
+        type: simulation
+    }
+    element password_validator {
+        type: code
+    }
+    auth_module - satisfies -> user_login
+    password_validator - satisfies -> password_strength
+    password_strength - derives -> user_login

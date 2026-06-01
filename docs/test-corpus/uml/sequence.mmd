@@ -1,0 +1,16 @@
+sequenceDiagram
+    participant U as User
+    participant W as Web App
+    participant A as Auth Service
+    participant D as Database
+    U->>W: Login request
+    W->>A: Validate credentials
+    A->>D: Query user
+    D-->>A: User record
+    alt valid credentials
+        A-->>W: Auth token
+        W-->>U: Dashboard
+    else invalid
+        A-->>W: 401 Unauthorized
+        W-->>U: Error message
+    end

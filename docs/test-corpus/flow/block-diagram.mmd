@@ -1,0 +1,10 @@
+block-beta
+    columns 3
+    Frontend["Frontend"] Backend["Backend"] Database[("Database")]
+    space:3
+    Cache[("Redis Cache")]:3
+    space:3
+    CDN["CDN"] LoadBalancer["Load Balancer"] Monitor["Monitoring"]
+    Frontend --> Backend
+    Backend --> Database
+    Backend --> Cache

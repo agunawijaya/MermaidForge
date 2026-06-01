@@ -1,0 +1,17 @@
+C4Container
+    title Container diagram: Internet Banking
+    Person(customer, "Banking Customer")
+    System_Boundary(banking, "Internet Banking") {
+        Container(web_app, "Web Application", "Java, Spring MVC", "Delivers static content")
+        Container(spa, "Single-Page App", "JavaScript, Angular", "Banking functionality in browser")
+        Container(mobile_app, "Mobile App", "Swift / Kotlin", "Banking functionality on mobile")
+        ContainerDb(database, "Database", "PostgreSQL", "User accounts, transactions")
+        Container(api, "API Application", "Java, Spring Boot", "Provides banking API")
+    }
+    Rel(customer, web_app, "Uses", "HTTPS")
+    Rel(customer, spa, "Uses", "HTTPS")
+    Rel(customer, mobile_app, "Uses")
+    Rel(web_app, spa, "Delivers", "HTTPS")
+    Rel(spa, api, "Calls", "JSON/HTTPS")
+    Rel(mobile_app, api, "Calls", "JSON/HTTPS")
+    Rel(api, database, "Reads/writes", "SQL/JDBC")

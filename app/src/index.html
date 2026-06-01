@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="styles.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mermaid Forge</title>
+    <script type="module">
+      // Local bundle — replaces jsdelivr CDN to satisfy R1 (offline-capable).
+      // Pinned to mermaid@11.15.0 and @mermaid-js/layout-elk@0.1.7 (Task 4.0.2).
+      import mermaid from './mermaid-dist/mermaid.esm.min.mjs';
+      import elkLayouts from './elk-dist/mermaid-layout-elk.esm.min.mjs';
+      mermaid.registerLayoutLoaders(elkLayouts);
+      mermaid.initialize({ startOnLoad: false, theme: 'default' });
+      window.__mermaid = mermaid;
+      window.dispatchEvent(new Event('mermaid-ready'));
+    </script>
+    <script type="module" src="/main.js" defer></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <!-- File operations toolbar (T4.6.2.2) — below native menu bar, full width -->
+      <div class="app-toolbar" id="app-toolbar">
+        <button class="atb-btn" id="tb-file-new"    title="New (Ctrl+N)"            data-icon="file-plus"></button>
+        <button class="atb-btn" id="tb-file-open"   title="Open (Ctrl+O)"           data-icon="folder-open"></button>
+        <button class="atb-btn" id="tb-file-save"   title="Save (Ctrl+S)"           data-icon="save"></button>
+        <button class="atb-btn" id="tb-file-saveas" title="Save As (Ctrl+Shift+S)"  data-icon="save-as"></button>
+
+        <span class="atb-sep"></span>
+
+        <button class="atb-btn" id="tb-edit-undo" title="Undo (Ctrl+Z)" data-icon="undo"></button>
+        <button class="atb-btn" id="tb-edit-redo" title="Redo (Ctrl+Y)" data-icon="redo"></button>
+
+        <span class="atb-sep"></span>
+
+        <div class="atb-dropdown" id="tb-export-wrap">
+          <button class="atb-btn atb-with-caret" id="tb-export-btn" title="Export..." data-icon="export"></button>
+          <div class="atb-dropdown-menu" id="tb-export-menu" hidden>
+            <button class="atb-menu-item" data-format="pptx">Export as PowerPoint (.pptx)</button>
+            <button class="atb-menu-item" data-format="vsdx">Export as Visio (.vsdx)</button>
+            <button class="atb-menu-item" data-format="png">Export as PNG (.png)</button>
+            <button class="atb-menu-item" data-format="svg">Export as SVG (.svg)</button>
+          </div>
+        </div>
+
+        <div class="atb-dropdown" id="tb-copy-wrap">
+          <button class="atb-btn atb-with-caret" id="tb-copy-btn" title="Copy to clipboard..." data-icon="copy"></button>
+          <div class="atb-dropdown-menu" id="tb-copy-menu" hidden>
+            <button class="atb-menu-item" data-copy="png">Copy diagram as PNG</button>
+            <button class="atb-menu-item" data-copy="code">Copy code as text</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Alt+F / Alt+H mnemonic overlays (T4.6.2.0 workaround) -->
+      <div class="alt-menu" id="alt-menu-file" hidden>
+        <button class="alt-menu-item" data-action="new"     data-mnem="n"><span class="ami-label">New</span><span class="ami-shortcut">Ctrl+N</span></button>
+        <button class="alt-menu-item" data-action="open"    data-mnem="o"><span class="ami-label">Open...</span><span class="ami-shortcut">Ctrl+O</span></button>
+        <button class="alt-menu-item" data-action="save"    data-mnem="s"><span class="ami-label">Save</span><span class="ami-shortcut">Ctrl+S</span></button>
+        <button class="alt-menu-item" data-action="save_as" data-mnem="a"><span class="ami-label">Save As...</span><span class="ami-shortcut">Ctrl+Shift+S</span></button>
+        <div class="alt-menu-sep"></div>
+        <button class="alt-menu-item" data-action="exit"    data-mnem="x"><span class="ami-label">Exit</span></button>
+      </div>
+      <div class="alt-menu" id="alt-menu-help" hidden>
+        <button class="alt-menu-item" data-action="about" data-mnem="a"><span class="ami-label">About Mermaid Forge</span></button>
+      </div>
+
+      <aside class="sidebar" id="sidebar">
+        <header class="sidebar-header">
+          <span>Templates</span>
+          <button class="collapse-btn" id="sidebar-collapse" title="Collapse templates">&#9664;</button>
+        </header>
+        <nav class="template-list"></nav>
+      </aside>
+      <button class="restore-btn" id="sidebar-restore" title="Show templates" hidden>&#9654;</button>
+
+      <main class="workspace">
+        <div class="panes">
+          <section class="code-pane" id="code-pane">
+            <header class="pane-header">
+              <span class="pane-title">Code</span>
+              <button class="collapse-btn" id="code-collapse" title="Collapse code">&#9664;</button>
+            </header>
+            <textarea id="editor" spellcheck="false" autocomplete="off"></textarea>
+          </section>
+
+          <div class="pane-splitter" id="code-diagram-splitter" title="Drag to resize"></div>
+
+          <button class="restore-btn vertical" id="code-restore" title="Show code" hidden>&#9654;</button>
+
+          <section class="diagram-pane" id="diagram-pane">
+            <header class="pane-header diagram-toolbar">
+              <span class="pane-title">Diagram</span>
+              <div class="toolbar-buttons">
+                <button class="tb-btn" id="tb-pan" title="Pan (drag to scroll)">Pan</button>
+                <span class="tb-sep"></span>
+                <button class="tb-btn tb-icon" id="tb-zoom-in"  title="Zoom in (Ctrl++)">+</button>
+                <button class="tb-btn tb-icon" id="tb-zoom-out" title="Zoom out (Ctrl+-)">&minus;</button>
+                <button class="tb-btn" id="tb-zoom-fit" title="Fit to screen">Fit</button>
+                <button class="tb-btn" id="tb-zoom-reset" title="Reset 100% (Ctrl+0)">1:1</button>
+                <span class="tb-sep"></span>
+                <select class="tb-select" id="tb-theme" title="Diagram theme">
+                  <option value="default">Default theme</option>
+                  <option value="dark">Dark theme</option>
+                  <option value="forest">Forest theme</option>
+                  <option value="neutral">Neutral theme</option>
+                </select>
+                <span class="tb-sep"></span>
+                <select class="tb-select" id="tb-direction" title="Flowchart direction">
+                  <option value="">Direction&hellip;</option>
+                  <option value="TD">Top &rarr; Bottom</option>
+                  <option value="BT">Bottom &rarr; Top</option>
+                  <option value="LR">Left &rarr; Right</option>
+                  <option value="RL">Right &rarr; Left</option>
+                </select>
+                <select class="tb-select" id="tb-layout" title="Layout engine">
+                  <option value="">Layout&hellip;</option>
+                  <option value="dagre">Hierarchical (dagre)</option>
+                  <option value="elk">Adaptive (ELK)</option>
+                </select>
+              </div>
+            </header>
+            <div id="preview"></div>
+          </section>
+        </div>
+      </main>
+
+      <footer class="status-bar" id="status-bar">
+        <div class="status-cell status-cell-sidebar">
+          <div class="status-message" id="status-message">Ready</div>
+        </div>
+        <div class="status-cell status-cell-code" id="code-zoom-control">
+          <span class="zoom-label">Code</span>
+          <button class="zoom-btn" data-target="code" data-action="out" title="Zoom out">&minus;</button>
+          <button class="zoom-readout" data-target="code" title="Click to set zoom">100%</button>
+          <button class="zoom-btn" data-target="code" data-action="in" title="Zoom in">+</button>
+        </div>
+        <div class="status-cell status-cell-diagram" id="diagram-zoom-control">
+          <span class="zoom-label">Diagram</span>
+          <button class="zoom-btn" data-target="diagram" data-action="out" title="Zoom out">&minus;</button>
+          <button class="zoom-readout" data-target="diagram" title="Click to set zoom">100%</button>
+          <button class="zoom-btn" data-target="diagram" data-action="in" title="Zoom in">+</button>
+        </div>
+      </footer>
+    </div>
+  </body>
+</html>
