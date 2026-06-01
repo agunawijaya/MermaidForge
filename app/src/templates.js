@@ -1,5 +1,5 @@
 // templates.js
-// Template library — 29 templates across 6 categories.
+// Template library — 28 templates across 6 categories.
 // Sources mirrored from docs/test-corpus/<category>/<name>.mmd.
 // If you change a template's Mermaid source, change BOTH this file
 // and the corresponding .mmd file.
