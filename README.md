@@ -83,3 +83,7 @@ instructions. The output is a standard Windows `.msi` installer.
 ## Building from source
 
 See [BUILDING.md](BUILDING.md).
+
+## License
+
+[MIT](LICENSE) © 2026 Ardhivipala.
